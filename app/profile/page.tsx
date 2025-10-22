@@ -5,9 +5,7 @@ import { Code2 } from "lucide-react"
 
 export default function ProfilePage() {
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-
+    <div className="flex h-min-screen">
       <main className="flex-1 overflow-auto">
         <div className="sticky top-0 z-10 flex items-center gap-4 border-b border-border bg-background p-4 md:hidden">
           <MobileNav />
