@@ -4,229 +4,132 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Code2,
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Settings,
-  TrendingUp,
-  MessageSquare,
-  Zap,
-  BarChart3,
-  Trophy,
-  Award,
-  Target,
-  FileCode,
-  User,
+	Code2,
+	CheckCircle2,
+	PlayCircle,
+	Loader2,
+	Braces,
+	Boxes,
+	Globe,
+	Palette,
+	Terminal,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useProgressStore } from "@/store/progress-store"
+import { cn } from "@/lib/utils"
 
-interface Language {
-  id: string
-  name: string
-  icon: string
-  lessons: string[]
-}
-
-const languages: Language[] = [
-  {
-    id: "js",
-    name: "JavaScript",
-    icon: "JS",
-    lessons: ["Variables", "Loops", "Functions", "Arrays", "Objects", "Conditionals", "Promises", "Classes"],
-  },
-  {
-    id: "py",
-    name: "Python",
-    icon: "PY",
-    lessons: ["Variables", "Lists", "Loops", "Functions", "Dictionaries", "Conditionals", "Classes", "Modules"],
-  },
-  {
-    id: "cpp",
-    name: "C++",
-    icon: "C++",
-    lessons: ["Variables", "Loops", "Functions", "Arrays", "Pointers", "Classes", "STL", "Templates"],
-  },
-  {
-    id: "php",
-    name: "PHP",
-    icon: "PHP",
-    lessons: ["Variables", "Arrays", "Functions", "Loops", "Classes", "Forms", "Sessions", "Database"],
-  },
-  {
-    id: "html",
-    name: "HTML",
-    icon: "HTML",
-    lessons: ["Tags", "Attributes", "Forms", "Tables", "Semantic", "Media", "Links", "Lists"],
-  },
-  {
-    id: "css",
-    name: "CSS",
-    icon: "CSS",
-    lessons: ["Selectors", "Box Model", "Flexbox", "Grid", "Animations", "Responsive", "Colors", "Typography"],
-  },
+// 🧩 Language Tabs
+const langs = [
+	{ id: "js", name: "JS", icon: <Braces className="w-4 h-4 text-yellow-400" /> },
+	{ id: "py", name: "PY", icon: <Terminal className="w-4 h-4 text-blue-400" /> },
+	{ id: "cpp", name: "C++", icon: <Boxes className="w-4 h-4 text-indigo-400" /> },
+	{ id: "html", name: "HTML", icon: <Globe className="w-4 h-4 text-orange-400" /> },
+	{ id: "css", name: "CSS", icon: <Palette className="w-4 h-4 text-cyan-400" /> },
 ]
 
+// 📚 Lessons per language
+const lessonsMap: Record<string, string[]> = {
+	js: ["Variables", "Loops", "Functions", "Arrays", "Objects", "Promises", "Classes"],
+	py: ["Variables", "Loops", "Functions", "Lists", "Classes", "Modules"],
+	cpp: ["Variables", "Loops", "Arrays", "Pointers", "STL", "Templates"],
+	html: ["Tags", "Forms", "Tables", "Media", "Links", "Semantic"],
+	css: ["Selectors", "Flexbox", "Grid", "Animations", "Colors", "Typography"],
+}
+
 export function Sidebar() {
-  const pathname = usePathname()
-  const [expandedLanguages, setExpandedLanguages] = useState<string[]>(["js"])
-  const { getCompletedCount, totalLessons } = useProgressStore()
+	const pathname = usePathname()
+	const [lang, setLang] = useState("js")
+	const { getCompletedCount, totalLessons } = useProgressStore()
 
-  const completedCount = getCompletedCount()
+	// 🧠 Example lesson progress states (replace later with store data)
+	const completedLessons = ["Variables", "Loops"]
+	const inProgressLessons = ["Functions"]
 
-  const toggleLanguage = (langId: string) => {
-    setExpandedLanguages((prev) => (prev.includes(langId) ? prev.filter((id) => id !== langId) : [...prev, langId]))
-  }
+	// 🧩 Status icon logic
+	const getLessonIcon = (lesson: string) => {
+		if (completedLessons.includes(lesson))
+			return <CheckCircle2 className="w-4 h-4 text-green-500" />
+		if (inProgressLessons.includes(lesson))
+			return <Loader2 className="w-4 h-4 text-yellow-500 animate-spin" />
+		return <PlayCircle className="w-4 h-4 text-muted-foreground" />
+	}
 
-  return (
-    <div className="hidden h-screen w-64 flex-col border-r border-border bg-sidebar md:flex">
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-        <Code2 className="h-6 w-6 text-cyan-500" />
-        <span className="text-xl font-bold text-sidebar-foreground">CoderType</span>
-      </div>
+	return (
+		<div className="hidden md:flex h-screen w-64 flex-col border-r border-border bg-sidebar">
+			{/* 🔹 Header */}
+			<div className="flex h-14 items-center gap-2 border-b px-5">
+				<Code2 className="h-5 w-5 text-cyan-500" />
+				<span className="font-semibold text-lg">CoderType</span>
+			</div>
 
-      {/* Navigation */}
-      <ScrollArea className="flex-1 px-3 py-4">
-        <div className="space-y-1">
-          <Link href="/">
-            <Button variant={pathname === "/" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Home className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </Link>
+			{/* 🔹 Main Scrollable Area */}
+			<ScrollArea className="flex-1 px-3 py-3">
+				{/* Language Tabs */}
+				<p className="px-2 text-xs font-semibold text-muted-foreground uppercase mb-2">
+					Languages
+				</p>
+				<div className="grid grid-cols-3 gap-1.5">
+					{langs.map((l) => (
+						<button
+							key={l.id}
+							onClick={() => setLang(l.id)}
+							className={cn(
+								"flex flex-col items-center gap-0.5 rounded-md py-2 text-[11px] transition-all",
+								lang === l.id
+									? "bg-cyan-500/10 text-cyan-500"
+									: "text-muted-foreground hover:text-foreground hover:bg-accent"
+							)}
+						>
+							{l.icon}
+							<span>{l.name}</span>
+						</button>
+					))}
+				</div>
 
-          <Link href="/practice">
-            <Button variant={pathname === "/practice" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Zap className="mr-2 h-4 w-4" />
-              Practice Mode
-            </Button>
-          </Link>
+				{/* 🔹 Lessons List (Scrollable if too many) */}
+				<div className="mt-3">
+					<p className="px-2 py-2 text-xs font-semibold text-muted-foreground uppercase">
+						{langs.find((x) => x.id === lang)?.name} Lessons
+					</p>
+					<div className="max-h-[60vh] overflow-y-auto pr-1 space-y-1">
+						{lessonsMap[lang].map((lesson) => (
+							<Link key={lesson} href={`/lessons/${lang}/${lesson.toLowerCase()}`}>
+								<Button
+									variant={
+										pathname === `/lessons/${lang}/${lesson.toLowerCase()}`
+											? "secondary"
+											: "ghost"
+									}
+									className="w-full justify-start text-sm px-3 py-1.5 h-8 rounded-md transition-all"
+								>
+									{/* ✅ icon first */}
+									<span className="flex items-center gap-2">
+										{getLessonIcon(lesson)}
+										{lesson}
+									</span>
+								</Button>
+							</Link>
+						))}
+					</div>
+				</div>
+			</ScrollArea>
 
-          <div className="my-4 border-t border-sidebar-border" />
-
-          {/* Language Sections */}
-          <div className="space-y-1">
-            <p className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground">Languages</p>
-            {languages.map((language) => (
-              <div key={language.id}>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => toggleLanguage(language.id)}>
-                  {expandedLanguages.includes(language.id) ? (
-                    <ChevronDown className="mr-2 h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="mr-2 h-4 w-4" />
-                  )}
-                  <span className="mr-2 rounded bg-cyan-500 px-1.5 py-0.5 text-xs font-bold text-white">
-                    {language.icon}
-                  </span>
-                  {language.name}
-                </Button>
-
-                {expandedLanguages.includes(language.id) && (
-                  <div className="ml-6 mt-1 space-y-1">
-                    {language.lessons.map((lesson) => (
-                      <Link key={lesson} href={`/lessons/${language.id}/${lesson.toLowerCase()}`}>
-                        <Button
-                          variant={
-                            pathname === `/lessons/${language.id}/${lesson.toLowerCase()}` ? "secondary" : "ghost"
-                          }
-                          className="w-full justify-start text-sm"
-                          size="sm"
-                        >
-                          {lesson}
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="my-4 border-t border-sidebar-border" />
-
-          <Link href="/custom-lessons">
-            <Button variant={pathname === "/custom-lessons" ? "secondary" : "ghost"} className="w-full justify-start">
-              <FileCode className="mr-2 h-4 w-4" />
-              Custom Lessons
-            </Button>
-          </Link>
-
-          <Link href="/challenges">
-            <Button variant={pathname === "/challenges" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Target className="mr-2 h-4 w-4" />
-              Challenges
-            </Button>
-          </Link>
-
-          <div className="my-4 border-t border-sidebar-border" />
-
-          <Link href="/analytics">
-            <Button variant={pathname === "/analytics" ? "secondary" : "ghost"} className="w-full justify-start">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Analytics
-            </Button>
-          </Link>
-
-          <Link href="/achievements">
-            <Button variant={pathname === "/achievements" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Trophy className="mr-2 h-4 w-4" />
-              Achievements
-            </Button>
-          </Link>
-
-          <Link href="/leaderboard">
-            <Button variant={pathname === "/leaderboard" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Award className="mr-2 h-4 w-4" />
-              Leaderboard
-            </Button>
-          </Link>
-
-          <Link href="/progress">
-            <Button variant={pathname === "/progress" ? "secondary" : "ghost"} className="w-full justify-start">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              Progress
-            </Button>
-          </Link>
-
-          <Link href="/profile">
-            <Button variant={pathname === "/profile" ? "secondary" : "ghost"} className="w-full justify-start">
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </Button>
-          </Link>
-
-          <Link href="/settings">
-            <Button variant={pathname === "/settings" ? "secondary" : "ghost"} className="w-full justify-start">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
-          </Link>
-
-          <Link href="/feedback">
-            <Button variant={pathname === "/feedback" ? "secondary" : "ghost"} className="w-full justify-start">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Feedback
-            </Button>
-          </Link>
-        </div>
-      </ScrollArea>
-
-      {/* Footer Stats */}
-      <div className="border-t border-sidebar-border p-4">
-        <div className="flex justify-between text-sm">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-cyan-500">{completedCount}</div>
-            <div className="text-xs text-muted-foreground">DONE</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-sidebar-foreground">{totalLessons}</div>
-            <div className="text-xs text-muted-foreground">TOTAL</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+			{/* 🔹 Footer */}
+			<div className="border-t border-sidebar-border p-3">
+				<div className="flex justify-between text-xs text-muted-foreground">
+					<div className="text-center">
+						<p className="text-lg font-bold text-cyan-500">
+							{getCompletedCount()}
+						</p>
+						<p>Done</p>
+					</div>
+					<div className="text-center">
+						<p className="text-lg font-bold">{totalLessons}</p>
+						<p>Total</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
 }

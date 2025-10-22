@@ -8,31 +8,41 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
 import "./globals.css"
+import { Sidebar } from "@/components/sidebar"
 
 export const metadata: Metadata = {
-  title: "CoderType - Learn by Typing",
-  description: "Improve your coding speed and accuracy with interactive typing lessons",
-  generator: "v0.app",
+	title: "CoderType - Learn by Typing",
+	description: "Improve your coding speed and accuracy with interactive typing lessons",
 }
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode
+	children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${jetbrainsMono.variable} ${firaCode.variable} ${inter.variable}`}
-      >
-        <Suspense fallback={null}>
-          <ThemeProvider>
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </Suspense>
-        <Analytics />
-      </body>
-    </html>
-  )
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body
+				className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${jetbrainsMono.variable} ${firaCode.variable} ${inter.variable}`}
+			>
+				<Suspense fallback={null}>
+					<ThemeProvider>
+						<main className="flex h-screen overflow-hidden">
+							{/* Fixed Sidebar */}
+							<aside className="">
+								<Sidebar />
+							</aside>
+
+							{/* Scrollable Page Content */}
+							<section className="flex-1 overflow-y-auto">
+								{children}
+							</section>
+						</main>
+						<Toaster />
+					</ThemeProvider>
+				</Suspense>
+				<Analytics />
+			</body>
+		</html>
+	)
 }
